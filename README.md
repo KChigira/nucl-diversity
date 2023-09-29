@@ -1,2 +1,2 @@
-# nucl-diversity
+# nucleodiver
 Calculate nucleotide diverity from VCF.
