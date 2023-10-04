@@ -14,5 +14,10 @@ nucleodiver --fai test_ref.fasta.fai \
             --vcf Merged_filtered_variants.vcf \
             -n test02 --window 100000 --step 10000
 
+#Light version 3
+nucleodiver --fai test_ref.fasta.fai \
+            --vcf Merged_filtered_variants.vcf \
+            -n test03 --window 100000 --step 10000
+
 calcpie --pie_values test01_pie_values.tsv \
         --list test01_list.tsv

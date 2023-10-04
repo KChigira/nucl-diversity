@@ -2,7 +2,7 @@
 from setuptools import setup, find_packages
 from nucleodiver.__init__ import __version__
 
-setup(name='nuclodiver',
+setup(name='nucleodiver',
       version=__version__,
       description='Calculate nucleotide diverity from VCF.',
       author='Koki Chigira',
@@ -14,7 +14,7 @@ setup(name='nuclodiver',
         'pandas',
       ],
       entry_points={'console_scripts': [
-            'nucleodiver = nucleodiver.nucleodiver_2:main',
+            'nucleodiver = nucleodiver.nucleodiver_3:main',
             'calcpie = nucleodiver.calcpie:main',
             ]
       }

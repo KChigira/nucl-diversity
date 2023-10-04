@@ -25,12 +25,10 @@ class CalcPie(object):
         use = [False, False, False] #List of boolean
         count = 0
         all_columns = self.pie_values.columns.values #all colnames
-        print(all_columns)
         for i in range(3, len(all_columns)):
             two = all_columns[i].split('_')
             flag = [False, False]
             for j in range(len(self.list)):
-                print(self.list[j])
                 if two[0] == self.list[j]:
                     flag[0] = True
                 if two[1] == self.list[j]:
@@ -40,8 +38,6 @@ class CalcPie(object):
                 count = count + 1
             else:
                 use.append(False)
-
-            print(two)
 
 
         pie_select = self.pie_values.loc[:, use]
@@ -56,7 +52,7 @@ class CalcPie(object):
 
         #Sum of pie values for each row / number of varieties = pie
         result_table = self.pie_values.iloc[:, 1:3]
-        result_table['pie'] = pie_select.sum(axis=1) / len(self.list)
+        result_table['pie'] = pie_select.sum(axis=1) / len(pie_select.columns)
         
         result_table.to_csv(self.output, sep='\t')
             
