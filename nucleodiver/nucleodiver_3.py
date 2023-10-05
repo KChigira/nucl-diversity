@@ -32,19 +32,20 @@ class NucleoDiver_3(object):
         self.fai_data = pd.DataFrame(self.fai_data, columns=fai_col)
         self.fai_data['len'] = self.fai_data['len'].astype(int)
 
+        print(time_stamp(), 'Extracting variants data.', flush=True)
         #Read vcf file
         vcf_list = read_vcf(args.vcf)
         self.vcf_header = vcf_list[0]
         self.vcf_col = vcf_list[1]
         self.vcf_col[0] = 'CHROM'
-        data = pd.DataFrame(vcf_list[2], columns=self.vcf_col)
-        data['POS'] = data['POS'].astype(int)
+        self.data = pd.DataFrame(vcf_list[2], columns=self.vcf_col)
+        self.data['POS'] = self.data['POS'].astype(int)
+        del vcf_list
         #Make new DataFrame easy to parse.
-        self.newdata = data.iloc[:, 0:9]
-        for i in range(9, len(data.columns)):
+        for i in range(9, len(self.data.columns)):
             newcol = []
-            for j in range(len(data)):
-                temp = data.iat[j, i]
+            for j in range(len(self.data)):
+                temp = self.data.iat[j, i]
                 #ex. temp = "1/1:0,5:5:15:203,15,0"
 
                 geno = temp.split(':')[0]
@@ -53,19 +54,19 @@ class NucleoDiver_3(object):
                 hap = geno.split('/')
                 #ex. hap = ["1", "1"]
                 if len(hap) != 2:
-                    newcol.append(-1)
+                    self.data.iat[j, i] = -1
 
                 #Homo --> 0,1,2.... Hetero or missing --> -1
                 check_list = (str.isdigit(hap[0])
                               and str.isdigit(hap[1])
                               and hap[0] == hap[1])
                 if check_list:
-                    newcol.append(int(hap[0]))
+                    self.data.iat[j, i] = int(hap[0])
                 else:
-                    newcol.append(-1)
-            self.newdata['{}'.format(data.columns[i])] = newcol
-        print(time_stamp(), 'Extracting variants data has done.', flush=True)
+                    self.data.iat[j, i] = -1
+        print(time_stamp(), 'Done.', flush=True)
 
+        print(time_stamp(), 'Making index set.', flush=True)
         #Making set of regions to focus.
         #[chr01, 1, 100000], [chr01, 10001, 110000]...
         self.loc = []
@@ -83,12 +84,12 @@ class NucleoDiver_3(object):
             temp_chr = self.loc[i][0]
             temp_sta = self.loc[i][1]
             temp_end = self.loc[i][2]
-            sub_data = self.newdata.query('CHROM == @temp_chr '
-                                          'and POS >= @temp_sta '
-                                          'and POS <= @temp_end')
+            sub_data = self.data.query('CHROM == @temp_chr '
+                                       'and POS >= @temp_sta '
+                                       'and POS <= @temp_end')
             index = sub_data.index.tolist()
             self.loc_index.append(index)
-        print(time_stamp(), 'Making index set has done.', flush=True)
+        print(time_stamp(), 'Done.', flush=True)
 
     def run(self):
         #Making list of 2 varieties set
@@ -133,11 +134,10 @@ class NucleoDiver_3(object):
             print(time_stamp(), 'Processing data of No. {}.'.format(id), flush=True)
 
         #Make DataFrame with 0 or 1 data according to mutation or not
-        mut_data = self.newdata.iloc[:, 0:2] #only CHROM and POS
         mutcol = []
-        for i in range(len(self.newdata)):
-            val_1 = self.newdata.iat[i, n1]
-            val_2 = self.newdata.iat[i, n2]
+        for i in range(len(self.data)):
+            val_1 = self.data.iat[i, n1]
+            val_2 = self.data.iat[i, n2]
 
             check_list = (val_1 != -1
                           and val_2 != -1
@@ -146,14 +146,14 @@ class NucleoDiver_3(object):
                 mutcol.append(1)
             else:
                 mutcol.append(0)
-        mut_data['mut'] = mutcol
+        ser_mutcol = pd.Series(data = mutcol)
 
         #Calculate mutation number and pie value
         mutations = []
         pie = []
         for i in range(len(self.loc_index)):
-            sub_mut_data = mut_data.iloc[self.loc_index[i], :]
-            mut = sub_mut_data['mut'].sum()
+            sub_ser_mutcol = ser_mutcol.iloc[self.loc_index[i]]
+            mut = sub_ser_mutcol.sum()
             mutations.append(mut)
             pie.append(mut / self.wind)
 

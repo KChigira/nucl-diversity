@@ -1,4 +1,4 @@
-__version__ = "0.0.1"
+__version__ = "0.1.1"
 __copyright__    = 'Copyright (C) 2023 CHIGIRA Koki'
 __license__      = 'MIT License'
 __author__       = 'CHIGIRA Koki'
